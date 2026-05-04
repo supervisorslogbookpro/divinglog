@@ -1,0 +1,27 @@
+{
+  "name": "Supervisor Logbook Pro",
+  "short_name": "Logbook Pro",
+  "description": "Commercial Diving Supervision Logbook",
+  "start_url": "/diving-log-saas/index.html",
+  "scope": "/diving-log-saas/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#060E1A",
+  "theme_color": "#060E1A",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%23060E1A'/%3E%3Ccircle cx='96' cy='68' r='18' stroke='%23F4A636' stroke-width='6' fill='none'/%3E%3Cline x1='96' y1='86' x2='96' y2='148' stroke='%23F4A636' stroke-width='6' stroke-linecap='round'/%3E%3Cline x1='64' y1='112' x2='128' y2='112' stroke='%23F4A636' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M64 140 Q96 160 128 140' stroke='%23F4A636' stroke-width='6' stroke-linecap='round' fill='none'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%23060E1A'/%3E%3Ccircle cx='256' cy='180' r='48' stroke='%23F4A636' stroke-width='16' fill='none'/%3E%3Cline x1='256' y1='228' x2='256' y2='390' stroke='%23F4A636' stroke-width='16' stroke-linecap='round'/%3E%3Cline x1='170' y1='300' x2='342' y2='300' stroke='%23F4A636' stroke-width='16' stroke-linecap='round'/%3E%3Cpath d='M170 370 Q256 420 342 370' stroke='%23F4A636' stroke-width='16' stroke-linecap='round' fill='none'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "en"
+}
