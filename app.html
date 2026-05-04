@@ -813,7 +813,7 @@ textarea{resize:vertical;min-height:70px;}
 <script>
 const SUPA_URL='https://jqbtjklxbfydmwwztbvn.supabase.co';
 const SUPA_KEY='sb_publishable_KT7j111OChA9tnNq2gqkAQ_Vp7TfGkG';
-const APP_ROOT='/diving-log-saas/';
+const APP_ROOT='/divinglog/';
 const {createClient}=supabase;
 const sb=createClient(SUPA_URL,SUPA_KEY);
 
@@ -1343,7 +1343,7 @@ function doInstall(){
 if('serviceWorker' in navigator && location.protocol==='https:'){
   const sw=`
 const C='slp-v1';
-const URLS=['/diving-log-saas/','/diving-log-saas/index.html','/diving-log-saas/app.html','/diving-log-saas/manifest.json'];
+const URLS=['/divinglog/','/divinglog/index.html','/divinglog/app.html','/divinglog/manifest.json'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(URLS).catch(()=>{})));self.skipWaiting();});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.open(C).then(cache=>cache.match(e.request).then(hit=>{const net=fetch(e.request).then(r=>{if(r.ok)cache.put(e.request,r.clone());return r;}).catch(()=>hit);return hit||net;})));});`;

@@ -210,6 +210,43 @@ input:focus{border-color:var(--gold);}
     <button class="btn-auth" id="btn-auth" onclick="handleAuth()">
       <span id="btn-lbl">Sign In</span>
     </button>
+
+    <!-- forgot password link -->
+    <div id="forgot-wrap" style="text-align:center;margin-top:11px;">
+      <button id="btn-forgot" onclick="showForgot()"
+        style="background:none;border:none;color:var(--mu);font-size:11px;
+        cursor:pointer;font-family:Inter,sans-serif;text-decoration:underline;padding:0;">
+        Forgot password?
+      </button>
+    </div>
+
+    <!-- reset password panel -->
+    <div id="reset-wrap" style="display:none;margin-top:14px;border-top:1px solid var(--bd);padding-top:14px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">
+        Reset Password
+      </div>
+      <div style="font-size:11px;color:var(--mu);margin-bottom:10px;line-height:1.6;">
+        Enter your email and we will send a reset link.
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="display:block;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">Email</label>
+        <input type="email" id="reset-email" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <button onclick="sendReset()" id="btn-reset"
+        style="width:100%;padding:12px;border-radius:9px;background:rgba(244,166,54,.1);border:1px solid var(--goldD);color:var(--gold);font-family:Syne,sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        Send Reset Link
+      </button>
+      <div style="text-align:center;margin-top:10px;">
+        <button onclick="hideForgot()" style="background:none;border:none;color:var(--mu);font-size:11px;cursor:pointer;font-family:Inter,sans-serif;text-decoration:underline;">
+          Back to sign in
+        </button>
+      </div>
+    </div>
+
     <div class="msg" id="msg"></div>
   </div>
 
@@ -223,7 +260,7 @@ input:focus{border-color:var(--gold);}
       </svg>
       Share with colleagues
     </div>
-    <div class="share-link" id="share-link">https://supervisorslogbookpro.github.io/diving-log-saas/index.html</div>
+    <div class="share-link" id="share-link">https://supervisorslogbookpro.github.io/divinglog/index.html</div>
     <button class="btn-copy" onclick="copyLink()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="9" y="9" width="13" height="13" rx="2"/>
@@ -240,8 +277,7 @@ input:focus{border-color:var(--gold);}
 <script>
 const SUPA_URL='https://jqbtjklxbfydmwwztbvn.supabase.co';
 const SUPA_KEY='sb_publishable_KT7j111OChA9tnNq2gqkAQ_Vp7TfGkG';
-const APP_URL ='/diving-log-saas/app.html';
-
+const APP_URL ='/divinglog/app.html';
 const {createClient}=supabase;
 const sb=createClient(SUPA_URL,SUPA_KEY);
 
@@ -292,6 +328,14 @@ function switchTab(t){
   document.getElementById('tab-up').className='atab'+(t==='up'?' on':'');
   document.getElementById('btn-lbl').textContent=t==='in'?'Sign In':'Create Account';
   document.getElementById('password').autocomplete=t==='in'?'current-password':'new-password';
+  // show forgot only on sign in tab
+  const fw=document.getElementById('forgot-wrap');
+  if(fw) fw.style.display=t==='in'?'block':'none';
+  // hide reset panel when switching tabs
+  const rw=document.getElementById('reset-wrap');
+  if(rw) rw.style.display='none';
+  const ba=document.getElementById('btn-auth');
+  if(ba) ba.style.display='block';
   clearMsg();
 }
 
@@ -324,9 +368,42 @@ function setLoading(on){
 function showMsg(txt,cls){const el=document.getElementById('msg');el.textContent=txt;el.className='msg '+cls;}
 function clearMsg(){const el=document.getElementById('msg');el.textContent='';el.className='msg';}
 
+// FORGOT PASSWORD
+function showForgot(){
+  document.getElementById('reset-wrap').style.display='block';
+  document.getElementById('forgot-wrap').style.display='none';
+  document.getElementById('btn-auth').style.display='none';
+  const fw=document.getElementById('forgot-wrap');if(fw)fw.style.display='none';
+  clearMsg();
+  // pre-fill reset email from login field
+  const em=document.getElementById('email').value.trim();
+  if(em) document.getElementById('reset-email').value=em;
+}
+function hideForgot(){
+  document.getElementById('reset-wrap').style.display='none';
+  document.getElementById('forgot-wrap').style.display='block';
+  document.getElementById('btn-auth').style.display='block';
+  clearMsg();
+}
+async function sendReset(){
+  const email=document.getElementById('reset-email').value.trim();
+  if(!email){showMsg('Please enter your email.','err');return;}
+  const btn=document.getElementById('btn-reset');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Sending…';
+  const{error}=await sb.auth.resetPasswordForEmail(email,{
+    redirectTo:'https://supervisorslogbookpro.github.io/divinglog/app.html'
+  });
+  btn.disabled=false;btn.innerHTML='Send Reset Link';
+  if(error){showMsg(error.message,'err');}
+  else{
+    showMsg('Reset link sent! Check your email inbox.','ok');
+    setTimeout(()=>hideForgot(),3000);
+  }
+}
+
 // ── COPY LINK ───────────────────────
 function copyLink(){
-  const link='https://supervisorslogbookpro.github.io/diving-log-saas/index.html';
+  const link='https://supervisorslogbookpro.github.io/divinglog/index.html';
   if(navigator.share){
     navigator.share({title:'Supervisor Logbook Pro',url:link})
       .then(()=>toast('Link shared!'))
@@ -353,12 +430,7 @@ function toast(msg,type='ok'){
 if('serviceWorker' in navigator && location.protocol==='https:'){
   const sw=`
 const C='slp-v1';
-const URLS=[
-  '/diving-log-saas/',
-  '/diving-log-saas/index.html',
-  '/diving-log-saas/app.html',
-  '/diving-log-saas/manifest.json'
-];
+const URLS=['/divinglog/','/divinglog/index.html','/divinglog/app.html','/divinglog/manifest.json'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(C).then(c=>c.addAll(URLS).catch(()=>{})));
   self.skipWaiting();
