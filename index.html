@@ -223,7 +223,7 @@ input:focus{border-color:var(--gold);}
       </svg>
       Share with colleagues
     </div>
-    <div class="share-link" id="share-link">https://bsantinoni.github.io/diving-log-saas/index.html</div>
+    <div class="share-link" id="share-link">https://supervisorslogbookpro.github.io/diving-log-saas/index.html</div>
     <button class="btn-copy" onclick="copyLink()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="9" y="9" width="13" height="13" rx="2"/>
@@ -241,6 +241,7 @@ input:focus{border-color:var(--gold);}
 const SUPA_URL='https://jqbtjklxbfydmwwztbvn.supabase.co';
 const SUPA_KEY='sb_publishable_KT7j111OChA9tnNq2gqkAQ_Vp7TfGkG';
 const APP_URL ='/diving-log-saas/app.html';
+
 const {createClient}=supabase;
 const sb=createClient(SUPA_URL,SUPA_KEY);
 
@@ -325,7 +326,7 @@ function clearMsg(){const el=document.getElementById('msg');el.textContent='';el
 
 // ── COPY LINK ───────────────────────
 function copyLink(){
-  const link='https://bsantinoni.github.io/diving-log-saas/index.html';
+  const link='https://supervisorslogbookpro.github.io/diving-log-saas/index.html';
   if(navigator.share){
     navigator.share({title:'Supervisor Logbook Pro',url:link})
       .then(()=>toast('Link shared!'))
