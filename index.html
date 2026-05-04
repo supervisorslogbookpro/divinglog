@@ -2,322 +2,391 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diving Log — Login</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Logbook Pro">
+<meta name="theme-color" content="#060E1A">
+<meta name="description" content="Commercial Diving Supervision Logbook">
+<link rel="manifest" href="manifest.json">
+<title>Supervisor Logbook Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root {
-    --abyss:    #070b12;
-    --deep:     #0d1520;
-    --mid:      #111c2d;
-    --surface:  #162236;
-    --wire:     #243650;
-    --muted:    #3d567a;
-    --sub:      #5a7da0;
-    --text:     #c8ddf0;
-    --bright:   #e8f4ff;
-    --cyan:     #00d4ff;
-    --cyan-dim: #0099bb;
-    --red:      #ef4444;
-    --green:    #10b981;
-    --amber:    #f59e0b;
-    --radius:   8px;
-  }
+:root{
+  --bg:#060E1A;--bg2:#0A1929;--bg3:#0D2040;--bd:#152E44;--bd2:#1C3A54;
+  --tx:#D4E8F5;--mu:#3A6080;--lb:#5B8DB8;
+  --bell:#2196F3;--bellD:#1565C0;--surf:#3DDC84;
+  --gold:#F4A636;--goldD:#C47E10;--red:#E74C3C;--r:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--tx);
+  font-family:'Inter',system-ui,sans-serif;font-size:14px;}
+body{
+  display:flex;align-items:center;justify-content:center;min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 100% 60% at 50% -10%, rgba(0,80,140,0.2) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 90% 80%, rgba(0,60,110,0.15) 0%, transparent 55%);
+}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap{width:min(420px,94vw);padding:16px;}
 
-  body {
-    background: var(--abyss);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    min-height: 100vh;
-    display: flex; align-items: center; justify-content: center;
-    background-image:
-      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,100,160,0.2) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 40% at 80% 90%, rgba(0,60,100,0.12) 0%, transparent 60%);
-  }
+/* ── LOGO CARD ── */
+.logo-card{
+  background:linear-gradient(160deg,#091624,#0C2038);
+  border:1px solid var(--bd2);border-radius:20px;
+  padding:32px 24px 28px;margin-bottom:14px;
+  text-align:center;position:relative;overflow:hidden;
+}
+.logo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.6;}
 
-  .card {
-    background: var(--deep);
-    border: 1px solid var(--wire);
-    border-radius: 16px;
-    padding: 48px 40px;
-    width: min(420px, 92vw);
-    position: relative;
-    overflow: hidden;
-  }
-  .card::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-    opacity: 0.7;
-  }
+/* anchor icon */
+.logo-icon{width:64px;height:64px;margin:0 auto 16px;
+  filter:drop-shadow(0 0 10px rgba(244,166,54,.4));}
+.logo-sup{font-size:9px;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:4px;}
+.logo-name{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;
+  color:var(--tx);letter-spacing:-.01em;line-height:1.1;margin-bottom:6px;}
+.logo-sub{font-size:11px;color:var(--mu);letter-spacing:.04em;}
 
-  .brand {
-    display: flex; align-items: center; gap: 12px;
-    margin-bottom: 36px;
-  }
-  .brand-icon {
-    width: 36px; height: 36px;
-    border: 1.5px solid var(--cyan);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--cyan);
-    box-shadow: 0 0 14px rgba(0,212,255,0.2);
-    flex-shrink: 0;
-  }
-  .brand-text h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: 17px; font-weight: 800;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--bright);
-    line-height: 1;
-  }
-  .brand-text p {
-    font-size: 10px; color: var(--muted);
-    letter-spacing: 0.06em; margin-top: 4px;
-  }
+/* ── AUTH CARD ── */
+.auth-card{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);
+  padding:20px;margin-bottom:12px;
+}
+.tabs-row{display:flex;background:var(--bg3);border:1px solid var(--bd);
+  border-radius:8px;padding:3px;gap:3px;margin-bottom:18px;}
+.atab{flex:1;text-align:center;padding:8px;border-radius:6px;
+  font-size:12px;font-weight:700;letter-spacing:.06em;
+  cursor:pointer;border:none;background:none;color:var(--mu);
+  font-family:'Inter',sans-serif;transition:all .15s;}
+.atab.on{background:var(--bg2);color:var(--gold);border:1px solid var(--goldD);}
 
-  /* tabs */
-  .tabs {
-    display: flex;
-    background: var(--mid);
-    border: 1px solid var(--wire);
-    border-radius: var(--radius);
-    padding: 3px; gap: 3px;
-    margin-bottom: 28px;
-  }
-  .tab {
-    flex: 1; text-align: center;
-    padding: 8px;
-    border-radius: 6px;
-    font-family: 'Syne', sans-serif;
-    font-size: 11px; font-weight: 700;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    cursor: pointer; border: none;
-    color: var(--muted); background: none;
-    transition: all 0.2s;
-  }
-  .tab.active {
-    background: var(--surface);
-    color: var(--bright);
-    border: 1px solid var(--wire);
-  }
+.flabel{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:5px;opacity:.9;}
+.field{margin-bottom:12px;}
+input[type=email],input[type=password]{
+  width:100%;background:var(--bg);border:1.5px solid var(--bd);border-radius:8px;
+  padding:12px 14px;color:var(--tx);font-size:14px;font-family:'Inter',sans-serif;
+  outline:none;-webkit-appearance:none;transition:border-color .15s;color-scheme:dark;}
+input:focus{border-color:var(--gold);}
 
-  .field { margin-bottom: 16px; }
-  label {
-    display: block;
-    font-size: 10px; font-weight: 500;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--sub); margin-bottom: 7px;
-  }
-  input[type="email"],
-  input[type="password"] {
-    width: 100%;
-    background: var(--mid);
-    border: 1px solid var(--wire);
-    border-radius: var(--radius);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    padding: 10px 14px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    -webkit-appearance: none;
-  }
-  input:focus {
-    border-color: var(--cyan-dim);
-    box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
-  }
+.btn-auth{
+  width:100%;padding:13px;border-radius:9px;border:none;
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;transition:all .2s;letter-spacing:.04em;margin-top:4px;
+  background:linear-gradient(135deg,var(--bellD),var(--bell));
+  color:#fff;box-shadow:0 4px 20px rgba(33,150,243,.35);
+}
+.btn-auth:hover{box-shadow:0 4px 28px rgba(33,150,243,.55);transform:translateY(-1px);}
+.btn-auth:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
 
-  .btn-primary {
-    width: 100%;
-    background: var(--cyan);
-    color: var(--abyss);
-    border: none;
-    padding: 12px;
-    border-radius: var(--radius);
-    font-family: 'Syne', sans-serif;
-    font-size: 13px; font-weight: 700;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    cursor: pointer;
-    margin-top: 8px;
-    transition: all 0.2s;
-    box-shadow: 0 0 20px rgba(0,212,255,0.2);
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .btn-primary:hover {
-    background: #33ddff;
-    box-shadow: 0 0 30px rgba(0,212,255,0.35);
-    transform: translateY(-1px);
-  }
-  .btn-primary:disabled {
-    opacity: 0.5; cursor: not-allowed; transform: none;
-  }
+.msg{font-size:11px;margin-top:10px;text-align:center;min-height:16px;letter-spacing:.03em;}
+.msg.ok{color:var(--surf);}
+.msg.err{color:var(--red);}
 
-  .msg {
-    margin-top: 16px;
-    font-size: 12px;
-    text-align: center;
-    min-height: 18px;
-    transition: all 0.2s;
-  }
-  .msg.error   { color: var(--red); }
-  .msg.success { color: var(--green); }
-  .msg.info    { color: var(--amber); }
+/* ── INSTALL BANNER ── */
+.install-banner{
+  background:var(--bg2);border:1px solid var(--goldD);border-radius:var(--r);
+  padding:14px 16px;display:flex;align-items:center;gap:12px;
+  cursor:pointer;transition:all .2s;margin-bottom:12px;
+}
+.install-banner:hover{border-color:var(--gold);background:rgba(244,166,54,.05);}
+.install-banner-icon{width:40px;height:40px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--goldD),var(--gold));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(244,166,54,.3);}
+.install-banner-icon svg{width:22px;height:22px;color:#fff;}
+.install-banner-txt{flex:1;}
+.install-banner-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  color:var(--gold);margin-bottom:2px;}
+.install-banner-sub{font-size:10px;color:var(--mu);letter-spacing:.03em;}
+.install-banner-arrow{color:var(--goldD);font-size:18px;}
+/* hidden until PWA prompt available or iOS */
+.install-banner{display:none;}
+.install-banner.visible{display:flex;}
 
-  .spinner {
-    display: inline-block; width: 14px; height: 14px;
-    border: 2px solid rgba(7,11,18,0.4);
-    border-top-color: var(--abyss);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+/* share section */
+.share-card{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);
+  padding:14px 16px;
+}
+.share-title{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.share-link{
+  background:var(--bg);border:1px solid var(--bd2);border-radius:7px;
+  padding:10px 12px;font-size:11px;color:var(--lb);
+  word-break:break-all;margin-bottom:8px;line-height:1.5;
+}
+.btn-copy{
+  width:100%;padding:10px;border-radius:8px;border:1px solid var(--goldD);
+  background:rgba(244,166,54,.08);color:var(--gold);
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;
+  justify-content:center;gap:7px;
+}
+.btn-copy:hover{background:rgba(244,166,54,.14);border-color:var(--gold);}
 
-  .divider {
-    height: 1px; background: var(--wire);
-    margin: 24px 0;
-  }
-  .footer-note {
-    text-align: center;
-    font-size: 10px; color: var(--muted);
-    letter-spacing: 0.04em;
-  }
+/* ios install hint */
+.ios-hint{
+  display:none;background:var(--bg3);border:1px solid var(--goldD);
+  border-radius:8px;padding:12px 14px;margin-bottom:12px;
+  font-size:11px;color:var(--mu);line-height:1.7;
+}
+.ios-hint.visible{display:block;}
+.ios-hint strong{color:var(--gold);}
+
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:rot .65s linear infinite;vertical-align:middle;}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-70px);
+  background:var(--bg3);border:1px solid var(--goldD);color:var(--gold);
+  padding:10px 22px;border-radius:24px;font-size:13px;font-weight:700;
+  z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+#toast.show{transform:translateX(-50%) translateY(0);}
+#toast.err{border-color:var(--red);color:var(--red);}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="card">
-  <div class="brand">
-    <div class="brand-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-        <circle cx="12" cy="12" r="9"/>
-        <path d="M12 8v4l3 3"/>
-        <path d="M7 3.34A9 9 0 0 1 21 12"/>
+  <!-- LOGO -->
+  <div class="logo-card">
+    <!-- anchor SVG -->
+    <svg class="logo-icon" viewBox="0 0 64 64" fill="none">
+      <circle cx="32" cy="16" r="8" stroke="var(--gold)" stroke-width="3"/>
+      <line x1="32" y1="24" x2="32" y2="56" stroke="var(--gold)" stroke-width="3" stroke-linecap="round"/>
+      <line x1="14" y1="34" x2="50" y2="34" stroke="var(--gold)" stroke-width="3" stroke-linecap="round"/>
+      <path d="M14 50 Q32 62 50 50" stroke="var(--gold)" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <!-- DSV flag small -->
+      <rect x="36" y="8" width="14" height="10" rx="1" fill="white" opacity=".9"/>
+      <rect x="36" y="13" width="14" height="5" rx="0" fill="var(--bell)" opacity=".9"/>
+      <path d="M50 8 L56 13 L50 18" fill="var(--bg)" stroke="none"/>
+    </svg>
+    <div class="logo-sup">Commercial Diving</div>
+    <div class="logo-name">Supervisor Logbook Pro</div>
+    <div class="logo-sub">Offshore · Bell / Sat · Surface Supply</div>
+  </div>
+
+  <!-- INSTALL BANNER (shown when PWA prompt available) -->
+  <div class="install-banner" id="install-banner" onclick="doInstall()">
+    <div class="install-banner-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M12 2v13M7 10l5 6 5-6"/><path d="M3 19h18"/>
       </svg>
     </div>
-    <div class="brand-text">
-      <h1>Diving Log</h1>
-      <p>Commercial Diving Supervision</p>
+    <div class="install-banner-txt">
+      <div class="install-banner-title">📲 Install App</div>
+      <div class="install-banner-sub">Add to Home Screen — works offline</div>
     </div>
+    <span class="install-banner-arrow">›</span>
   </div>
 
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab active" id="tab-login"  onclick="switchTab('login')">Sign In</button>
-    <button class="tab"        id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+  <!-- iOS hint -->
+  <div class="ios-hint" id="ios-hint">
+    📲 <strong>Install on iPhone/iPad:</strong> tap the
+    <strong>Share</strong> button (□↑) in Safari, then
+    <strong>"Add to Home Screen"</strong> — the app will appear like a native app.
   </div>
 
-  <!-- FORM -->
-  <div class="field">
-    <label>Email</label>
-    <input type="email" id="email" placeholder="supervisor@company.com" autocomplete="email">
+  <!-- AUTH -->
+  <div class="auth-card">
+    <div class="tabs-row">
+      <button class="atab on" id="tab-in"  onclick="switchTab('in')">Sign In</button>
+      <button class="atab"    id="tab-up"  onclick="switchTab('up')">Create Account</button>
+    </div>
+    <div class="field">
+      <label class="flabel">Email</label>
+      <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label class="flabel">Password</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-auth" id="btn-auth" onclick="handleAuth()">
+      <span id="btn-lbl">Sign In</span>
+    </button>
+    <div class="msg" id="msg"></div>
   </div>
-  <div class="field">
-    <label>Password</label>
-    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+
+  <!-- SHARE LINK -->
+  <div class="share-card">
+    <div class="share-title">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+      Share with colleagues
+    </div>
+    <div class="share-link" id="share-link">https://bsantinoni.github.io/diving-log-saas/index.html</div>
+    <button class="btn-copy" onclick="copyLink()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="9" y="9" width="13" height="13" rx="2"/>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+      </svg>
+      Copy Link
+    </button>
   </div>
 
-  <button class="btn-primary" id="btn-submit" onclick="handleSubmit()">
-    <span id="btn-label">Sign In</span>
-  </button>
+</div><!-- /wrap -->
 
-  <div class="msg" id="msg"></div>
-
-  <div class="divider"></div>
-  <div class="footer-note">Secure · Powered by Supabase</div>
-</div>
+<div id="toast"></div>
 
 <script>
-// ── CONFIG ─────────────────────────────────────────────────────────────────
-const SUPABASE_URL = 'https://jqbtjklxbfydmwwztbvn.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_KT7j111OChA9tnNq2gqkAQ_Vp7TfGkG';
+const SUPA_URL='https://jqbtjklxbfydmwwztbvn.supabase.co';
+const SUPA_KEY='sb_publishable_KT7j111OChA9tnNq2gqkAQ_Vp7TfGkG';
+const APP_URL ='/diving-log-saas/app.html';
+const {createClient}=supabase;
+const sb=createClient(SUPA_URL,SUPA_KEY);
 
-// GitHub Pages path — adjust if repo name changes
-const APP_URL = '/diving-log-saas/app.html';
+let mode='in'; // 'in' | 'up'
+let deferredPrompt=null;
 
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-let mode = 'login'; // 'login' | 'signup'
-
-// ── REDIRECT IF ALREADY LOGGED IN ─────────────────────────────────────────
-sb.auth.getSession().then(({ data: { session } }) => {
-  if (session) window.location.href = APP_URL;
+// ── redirect if already logged in ──
+sb.auth.getSession().then(({data:{session}})=>{
+  if(session) window.location.href=APP_URL;
+});
+sb.auth.onAuthStateChange((event,session)=>{
+  if(session) window.location.href=APP_URL;
 });
 
-// ── AUTH STATE CHANGE (catches OAuth, email confirm, etc.) ─────────────────
-sb.auth.onAuthStateChange((event, session) => {
-  if (session) window.location.href = APP_URL;
+// ── PWA install ──────────────────────
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById('install-banner').classList.add('visible');
+});
+window.addEventListener('appinstalled',()=>{
+  document.getElementById('install-banner').classList.remove('visible');
+  toast('✅ App installed! Open from your home screen.');
 });
 
-// ── TAB SWITCH ─────────────────────────────────────────────────────────────
-function switchTab(tab) {
-  mode = tab;
-  document.getElementById('tab-login').classList.toggle('active',  tab === 'login');
-  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
-  document.getElementById('btn-label').textContent = tab === 'login' ? 'Sign In' : 'Create Account';
-  document.getElementById('password').autocomplete = tab === 'login' ? 'current-password' : 'new-password';
-  clearMsg();
+// detect iOS Safari (no beforeinstallprompt)
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+const isInStandalone=window.navigator.standalone===true;
+if(isIOS && !isInStandalone){
+  document.getElementById('ios-hint').classList.add('visible');
 }
 
-// ── SUBMIT ─────────────────────────────────────────────────────────────────
-async function handleSubmit() {
-  const email    = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-
-  if (!email || !password) { showMsg('Please fill in all fields.', 'error'); return; }
-  if (password.length < 6) { showMsg('Password must be at least 6 characters.', 'error'); return; }
-
-  setLoading(true);
-
-  if (mode === 'login') {
-    const { error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) { showMsg(error.message, 'error'); setLoading(false); }
-    // on success → onAuthStateChange fires → redirect
-
-  } else {
-    const { error } = await sb.auth.signUp({ email, password });
-    setLoading(false);
-    if (error) {
-      showMsg(error.message, 'error');
-    } else {
-      showMsg('Account created! Check your email to confirm, then sign in.', 'success');
-      switchTab('login');
-    }
+function doInstall(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r=>{
+      if(r.outcome==='accepted') toast('✅ Installing…');
+      deferredPrompt=null;
+      document.getElementById('install-banner').classList.remove('visible');
+    });
   }
 }
 
-// Enter key support
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') handleSubmit();
+// ── TAB SWITCH ─────────────────────
+function switchTab(t){
+  mode=t;
+  document.getElementById('tab-in').className='atab'+(t==='in'?' on':'');
+  document.getElementById('tab-up').className='atab'+(t==='up'?' on':'');
+  document.getElementById('btn-lbl').textContent=t==='in'?'Sign In':'Create Account';
+  document.getElementById('password').autocomplete=t==='in'?'current-password':'new-password';
+  clearMsg();
+}
+
+// ── AUTH ────────────────────────────
+async function handleAuth(){
+  const email=document.getElementById('email').value.trim();
+  const pass =document.getElementById('password').value;
+  if(!email||!pass){showMsg('Please fill in all fields.','err');return;}
+  if(pass.length<6){showMsg('Password must be at least 6 characters.','err');return;}
+  setLoading(true);
+  if(mode==='in'){
+    const{error}=await sb.auth.signInWithPassword({email,password:pass});
+    if(error){showMsg(error.message,'err');setLoading(false);}
+    // success → onAuthStateChange → redirect
+  } else {
+    const{error}=await sb.auth.signUp({email,password:pass});
+    setLoading(false);
+    if(error){showMsg(error.message,'err');}
+    else{showMsg('Account created! Check your email to confirm, then sign in.','ok');switchTab('in');}
+  }
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter')handleAuth();});
+
+function setLoading(on){
+  const btn=document.getElementById('btn-auth');
+  const lbl=document.getElementById('btn-lbl');
+  btn.disabled=on;
+  lbl.innerHTML=on?'<span class="spin"></span>':(mode==='in'?'Sign In':'Create Account');
+}
+function showMsg(txt,cls){const el=document.getElementById('msg');el.textContent=txt;el.className='msg '+cls;}
+function clearMsg(){const el=document.getElementById('msg');el.textContent='';el.className='msg';}
+
+// ── COPY LINK ───────────────────────
+function copyLink(){
+  const link='https://bsantinoni.github.io/diving-log-saas/index.html';
+  if(navigator.share){
+    navigator.share({title:'Supervisor Logbook Pro',url:link})
+      .then(()=>toast('Link shared!'))
+      .catch(()=>fallbackCopy(link));
+  } else {
+    fallbackCopy(link);
+  }
+}
+function fallbackCopy(txt){
+  navigator.clipboard.writeText(txt)
+    .then(()=>toast('Link copied to clipboard!'))
+    .catch(()=>toast('Copy: '+txt));
+}
+
+// ── TOAST ────────────────────────────
+let _tt;
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.className=type==='err'?'show err':'show';
+  clearTimeout(_tt);_tt=setTimeout(()=>t.className='',3200);
+}
+
+// ── SERVICE WORKER ───────────────────
+if('serviceWorker' in navigator && location.protocol==='https:'){
+  const sw=`
+const C='slp-v1';
+const URLS=[
+  '/diving-log-saas/',
+  '/diving-log-saas/index.html',
+  '/diving-log-saas/app.html',
+  '/diving-log-saas/manifest.json'
+];
+self.addEventListener('install',e=>{
+  e.waitUntil(caches.open(C).then(c=>c.addAll(URLS).catch(()=>{})));
+  self.skipWaiting();
 });
-
-// ── HELPERS ────────────────────────────────────────────────────────────────
-function setLoading(on) {
-  const btn = document.getElementById('btn-submit');
-  const lbl = document.getElementById('btn-label');
-  btn.disabled = on;
-  lbl.innerHTML = on
-    ? '<span class="spinner"></span>'
-    : (mode === 'login' ? 'Sign In' : 'Create Account');
-}
-
-function showMsg(text, type='info') {
-  const el = document.getElementById('msg');
-  el.textContent = text;
-  el.className = `msg ${type}`;
-}
-
-function clearMsg() {
-  const el = document.getElementById('msg');
-  el.textContent = '';
-  el.className = 'msg';
+self.addEventListener('activate',e=>{
+  e.waitUntil(caches.keys().then(keys=>
+    Promise.all(keys.filter(k=>k!==C).map(k=>caches.delete(k)))
+  ));
+  self.clients.claim();
+});
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET') return;
+  e.respondWith(
+    caches.open(C).then(cache=>
+      cache.match(e.request).then(hit=>{
+        const net=fetch(e.request).then(r=>{
+          if(r.ok) cache.put(e.request,r.clone());
+          return r;
+        }).catch(()=>hit);
+        return hit||net;
+      })
+    )
+  );
+});`;
+  try{
+    const blob=new Blob([sw],{type:'text/javascript'});
+    const url=URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url).catch(()=>{});
+  }catch(e){}
 }
 </script>
 </body>

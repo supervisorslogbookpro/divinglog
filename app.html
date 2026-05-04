@@ -6,7 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#060E1A">
-<title>Diving Log</title>
+<meta name="apple-mobile-web-app-title" content="Logbook Pro">
+<meta name="description" content="Commercial Diving Supervision Logbook">
+<link rel="manifest" href="manifest.json">
+<title>Supervisor Logbook Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -75,6 +78,12 @@ header::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
 .btn-out{background:none;border:1px solid var(--bd);color:var(--mu);font-size:10px;
   font-weight:600;padding:5px 10px;border-radius:20px;cursor:pointer;transition:all .15s;}
 .btn-out:hover{border-color:var(--red);color:var(--red);}
+.btn-install{display:none;background:rgba(244,166,54,.1);border:1px solid var(--goldD);
+  color:var(--gold);font-size:10px;font-weight:600;padding:5px 10px;border-radius:20px;
+  cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;
+  align-items:center;gap:4px;}
+.btn-install.visible{display:flex;}
+.btn-install:hover{background:rgba(244,166,54,.18);border-color:var(--gold);}
 
 /* ══ TABS ════════════════════════════ */
 nav{display:flex;padding:0 2px;}
@@ -351,7 +360,7 @@ textarea{resize:vertical;min-height:70px;}
       </svg>
       <div class="hdr-titles">
         <span class="hdr-sup">Commercial Diving</span>
-        <span class="hdr-name">Dive Log</span>
+        <span class="hdr-name">Supervisor Logbook Pro</span>
       </div>
     </div>
     <div class="hdr-right">
@@ -363,6 +372,12 @@ textarea{resize:vertical;min-height:70px;}
         <button class="unit-btn on" id="btn-m"  onclick="setUnit('metric')">m</button>
         <button class="unit-btn"   id="btn-ft" onclick="setUnit('imperial')">ft</button>
       </div>
+      <button class="btn-install" id="btn-install" onclick="doInstall()" title="Install App">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 2v13M7 10l5 6 5-6"/><path d="M3 19h18"/>
+        </svg>
+        Install
+      </button>
       <button class="btn-out" id="btn-out">Sign out</button>
     </div>
   </div>
@@ -1299,6 +1314,40 @@ function showToast(msg,type='ok'){
   const t=document.getElementById('toast');t.textContent=msg;
   t.className=type==='err'?'show err':'show';
   clearTimeout(_tt);_tt=setTimeout(()=>t.className='',3000);
+}
+
+// PWA INSTALL
+let _deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();_deferredPrompt=e;
+  document.getElementById('btn-install').classList.add('visible');
+});
+window.addEventListener('appinstalled',()=>{
+  document.getElementById('btn-install').classList.remove('visible');
+  showToast('App installed! Open from your home screen ✓');
+});
+function doInstall(){
+  if(_deferredPrompt){
+    _deferredPrompt.prompt();
+    _deferredPrompt.userChoice.then(r=>{
+      if(r.outcome==='accepted') showToast('Installing…');
+      _deferredPrompt=null;
+      document.getElementById('btn-install').classList.remove('visible');
+    });
+  } else {
+    showToast('Use browser menu → Add to Home Screen','err');
+  }
+}
+
+// SERVICE WORKER
+if('serviceWorker' in navigator && location.protocol==='https:'){
+  const sw=`
+const C='slp-v1';
+const URLS=['/diving-log-saas/','/diving-log-saas/index.html','/diving-log-saas/app.html','/diving-log-saas/manifest.json'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(URLS).catch(()=>{})));self.skipWaiting();});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.open(C).then(cache=>cache.match(e.request).then(hit=>{const net=fetch(e.request).then(r=>{if(r.ok)cache.put(e.request,r.clone());return r;}).catch(()=>hit);return hit||net;})));});`;
+  try{const b=new Blob([sw],{type:'text/javascript'});navigator.serviceWorker.register(URL.createObjectURL(b)).catch(()=>{});}catch(e){}
 }
 
 boot();
